@@ -49,7 +49,8 @@ def chat_with_gpt(messages, model):
 def main(input_file=None, output_file=None, model_name=None):
     global messages  # Declare messages as a global variable to modify it inside the function
 
-    model_name = "gpt-3.5-turbo" if not model_name else model_name
+    if not model_name:
+        model_name = "gpt-3.5-turbo"
 
     # Load messages if an input file is provided
     messages = load_messages(input_file) if input_file else []
