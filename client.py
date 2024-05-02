@@ -57,6 +57,12 @@ def main(input_file=None, output_file=None, model_name=None):
 
     print("Start chatting with GPT (type 'exit' to stop):")
 
+    for message in messages:
+        if message.get("role") == "user":
+            print("You: "+message.get("content"))
+        elif message.get("role") == "assistant":
+            print("GPT: "+message.get("content"))
+
     try:
         while True:
             user_input = input("You: ")
