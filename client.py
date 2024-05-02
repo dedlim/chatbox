@@ -29,9 +29,22 @@ def chat_with_gpt(messages, model):
     response = client.chat.completions.create(
         model=model,
         messages=messages,
+        stream=True
     )
 
-    return response.choices[0].message.content
+    # Initialize an empty string to store the complete response
+    full_response = ""
+
+    for chunk in response:
+        # Get the content from each streamed event
+        content = chunk.choices[0].delta.content
+        if type(content) is str:
+            print(content, end="", flush=True)  # Print and flush each chunk
+            full_response += content  # Append each chunk to form the complete response
+
+    print()  # Print a newline at the end
+
+    return full_response
 
 def main(input_file=None, output_file=None, model_name=None):
     global messages  # Declare messages as a global variable to modify it inside the function
@@ -59,12 +72,12 @@ def main(input_file=None, output_file=None, model_name=None):
         messages.append({"role": "user", "content": user_input})
 
         # Get the assistant's response
+        print("GPT: ", end="", flush=True)
         response_content = chat_with_gpt(messages, model_name)
 
         # Append the assistant's response to the messages list
         messages.append({"role": "assistant", "content": response_content})
 
-        print("GPT: " + response_content)
 
 if __name__ == "__main__":
     # Parse command line arguments for input and output files
