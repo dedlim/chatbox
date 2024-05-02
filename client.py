@@ -56,28 +56,34 @@ def main(input_file=None, output_file=None, model_name=None):
 
     print("Start chatting with GPT (type 'exit' to stop):")
 
-    while True:
-        user_input = input("You: ")
+    try:
+        while True:
+            user_input = input("You: ")
 
-        if user_input.lower() in ["exit", "quit"]:
-            print("Goodbye!")
+            if user_input.lower() in ["exit", "quit"]:
+                print("Goodbye!")
+                break
 
-            # Save messages if an output file is provided
-            if output_file:
-                save_messages(messages, output_file)
-            
-            break
+            # Append the user's input to the messages list
+            messages.append({"role": "user", "content": user_input})
 
-        # Append the user's input to the messages list
-        messages.append({"role": "user", "content": user_input})
+            # Get the assistant's response
+            print("GPT: ", end="", flush=True)
+            response_content = chat_with_gpt(messages, model_name)
 
-        # Get the assistant's response
-        print("GPT: ", end="", flush=True)
-        response_content = chat_with_gpt(messages, model_name)
+            # Append the assistant's response to the messages list
+            messages.append({"role": "assistant", "content": response_content})
 
-        # Append the assistant's response to the messages list
-        messages.append({"role": "assistant", "content": response_content})
+    except KeyboardInterrupt:
+        print("\nGoodbye! (Ctrl+C)")
 
+    except EOFError:
+        print("\nGoodbye! (Ctrl+D)")
+
+    finally:
+        # Save messages if an output file is provided
+        if output_file:
+            save_messages(messages, output_file)
 
 if __name__ == "__main__":
     # Parse command line arguments for input and output files
