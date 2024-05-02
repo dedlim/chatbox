@@ -25,7 +25,7 @@ def save_messages(messages, file_path):
     except Exception as e:
         print(f"Error saving messages: {e}")
 
-def chat_with_gpt(messages, model="gpt-3.5-turbo"):
+def chat_with_gpt(messages, model):
     response = client.chat.completions.create(
         model=model,
         messages=messages,
@@ -33,8 +33,10 @@ def chat_with_gpt(messages, model="gpt-3.5-turbo"):
 
     return response.choices[0].message.content
 
-def main(input_file=None, output_file=None):
+def main(input_file=None, output_file=None, model_name=None):
     global messages  # Declare messages as a global variable to modify it inside the function
+
+    model_name = "gpt-3.5-turbo" if not model_name else model_name
 
     # Load messages if an input file is provided
     messages = load_messages(input_file) if input_file else []
@@ -57,7 +59,7 @@ def main(input_file=None, output_file=None):
         messages.append({"role": "user", "content": user_input})
 
         # Get the assistant's response
-        response_content = chat_with_gpt(messages)
+        response_content = chat_with_gpt(messages, model_name)
 
         # Append the assistant's response to the messages list
         messages.append({"role": "assistant", "content": response_content})
@@ -68,6 +70,7 @@ if __name__ == "__main__":
     # Parse command line arguments for input and output files
     input_file = None
     output_file = None
+    model_name = None
 
     if len(sys.argv) > 1:
         for i, arg in enumerate(sys.argv):
@@ -75,5 +78,7 @@ if __name__ == "__main__":
                 input_file = sys.argv[i + 1]
             elif arg == "--out" and i + 1 < len(sys.argv):
                 output_file = sys.argv[i + 1]
+            elif arg == "--model" and i + 1 < len(sys.argv):
+                model_name = sys.argv[i + 1]
 
-    main(input_file, output_file)
+    main(input_file, output_file, model_name)
