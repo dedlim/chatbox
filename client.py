@@ -57,16 +57,24 @@ def main():
     input_file = args.input
     output_file = args.output
 
-    # Load messages if an input file is provided
-    messages = load_messages(input_file) if input_file else []
+    messages = []
 
-    print("Start chatting with GPT (type 'exit' to stop):")
+    # If an input file is provided, load and replay messages
+    if input_file:
+        messages = load_messages(input_file)
 
-    for message in messages:
-        if message.get("role") == "user":
-            print("You: "+message.get("content"))
-        elif message.get("role") == "assistant":
-            print("GPT: "+message.get("content"))
+        for message in messages:
+            role = message["role"]
+            content = message["content"]
+
+            if role == "user":
+                 print("You: " + content)
+            elif role == "assistant":
+                 print("GPT: " + content)
+
+        print()
+
+    print("### Start chatting with GPT (type 'exit' to stop):")
 
     try:
         while True:
