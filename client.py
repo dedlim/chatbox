@@ -74,15 +74,11 @@ def main():
 
         print()
 
-    print("### Start chatting with GPT (type 'exit' to stop):")
+    print("### Start chatting with GPT:")
 
     try:
         while True:
             user_input = input("You: ")
-
-            if user_input.lower() in ["exit", "quit"]:
-                print("Goodbye!")
-                break
 
             # Append the user's input to the messages list
             messages.append({"role": "user", "content": user_input})
