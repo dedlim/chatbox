@@ -3,7 +3,7 @@
 import os
 import json
 from openai import OpenAI
-import sys
+import argparse
 
 # Ensure to set your API key as an environment variable
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -25,32 +25,37 @@ def save_messages(messages, file_path):
     except Exception as e:
         print(f"Error saving messages: {e}")
 
+# Run one completion call, stream the result to stdout and return it
 def chat_with_gpt(messages, model):
     response = client.chat.completions.create(
-        model=model,
         messages=messages,
+        model=model,
         stream=True
     )
 
-    # Initialize an empty string to store the complete response
     full_response = ""
 
     for chunk in response:
         # Get the content from each streamed event
         content = chunk.choices[0].delta.content
         if type(content) is str:
-            print(content, end="", flush=True)  # Print and flush each chunk
-            full_response += content  # Append each chunk to form the complete response
+            print(content, end="", flush=True)
+            full_response += content
 
-    print()  # Print a newline at the end
+    print() # End with a newline
 
     return full_response
 
-def main(input_file=None, output_file=None, model_name=None):
-    global messages  # Declare messages as a global variable to modify it inside the function
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-m", "--model", default="gpt-3.5-turbo", help="language model to use")
+    parser.add_argument("-i", "--input", help="input conversation file (JSON)")
+    parser.add_argument("-o", "--output", help="output conversation file (JSON)")
+    args = parser.parse_args()
 
-    if not model_name:
-        model_name = "gpt-3.5-turbo"
+    model_name = args.model
+    input_file = args.input
+    output_file = args.output
 
     # Load messages if an input file is provided
     messages = load_messages(input_file) if input_file else []
@@ -93,18 +98,4 @@ def main(input_file=None, output_file=None, model_name=None):
             save_messages(messages, output_file)
 
 if __name__ == "__main__":
-    # Parse command line arguments for input and output files
-    input_file = None
-    output_file = None
-    model_name = None
-
-    if len(sys.argv) > 1:
-        for i, arg in enumerate(sys.argv):
-            if arg == "--in" and i + 1 < len(sys.argv):
-                input_file = sys.argv[i + 1]
-            elif arg == "--out" and i + 1 < len(sys.argv):
-                output_file = sys.argv[i + 1]
-            elif arg == "--model" and i + 1 < len(sys.argv):
-                model_name = sys.argv[i + 1]
-
-    main(input_file, output_file, model_name)
+    main()
