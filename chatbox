@@ -8,6 +8,7 @@ import readline
 
 color1 = "\033[93m"
 color2 = "\033[0m"
+color3 = "\033[94m"
 
 # Ensure to set your API key as an environment variable
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -56,25 +57,32 @@ def chat_with_gpt(messages, model):
 
     return full_response
 
-# Do Multiple-line input
+# Do (potentially) Multiple-line input
 def multi_line_input(prompt):
-    first = True
+    global color3, color2
 
+    multi_mode = False
+
+    try:
+        line = input(prompt) # Read first line
+    except EOFError:
+        multi_mode = True
+
+    if not multi_mode:
+        return line
+
+    print (color3+"### Multi-line mode activated (send with Ctrl+D)"+color2)
     lines = []
     try:
         while True:
-            if first:
-                line = input(prompt)
-                first = False
-            else:
-                line = input()
+            line = input()
             lines.append(line)
 
     except EOFError:
         return '\n'.join(lines)
 
 def main():
-    global color1, color2
+    global color1, color2, color3
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-m", "--model", default="gpt-3.5-turbo")
@@ -101,7 +109,7 @@ def main():
             elif role == "assistant":
                  print(color1 + "GPT: " + content + color2 + "\n")
 
-    print("### Start chatting with GPT (end prompt with Ctrl+D):")
+    print(color3+"### Start chatting with GPT:"+color2)
 
     try:
         while True:
@@ -118,10 +126,10 @@ def main():
             messages.append({"role": "assistant", "content": response_content})
 
     except KeyboardInterrupt:
-        print("\nGoodbye! (Ctrl+C)")
+        print(color3+"\n### Goodbye! (Ctrl+C)\033[0m")
 
     except EOFError:
-        print("\nGoodbye! (Ctrl+D)")
+        print(color3+"\n### Goodbye! (Ctrl+D)\033[0m")
 
     finally:
         # Save messages if an output file is provided
