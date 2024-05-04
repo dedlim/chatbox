@@ -39,7 +39,6 @@ def chat_with_gpt(messages, model):
     response = client.chat.completions.create(
         messages=messages,
         model=model,
-        temperature=0.0,
         stream=True
     )
 
