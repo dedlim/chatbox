@@ -4,6 +4,7 @@ import os
 import json
 from openai import OpenAI
 import argparse
+import readline
 
 # Ensure to set your API key as an environment variable
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -51,11 +52,16 @@ def main():
     parser.add_argument("-m", "--model", default="gpt-3.5-turbo", help="language model to use")
     parser.add_argument("-i", "--input", help="input conversation file (JSON)")
     parser.add_argument("-o", "--output", help="output conversation file (JSON)")
+    parser.add_argument("--io", help="mutable conversation file (JSON)")
     args = parser.parse_args()
 
     model_name = args.model
-    input_file = args.input
-    output_file = args.output
+    if args.io:
+        input_file = args.io
+        output_file = args.io
+    else:
+        input_file = args.input
+        output_file = args.output
 
     messages = []
 
