@@ -6,10 +6,8 @@ from openai import OpenAI
 import argparse
 import readline
 
-prompt1 = "You: "
-prompt2 = "\033[90mGPT: "
-prompt3 = "\033[0m"
-prompt4 = "\033[0m"
+color1 = "\033[90m"
+color2 = "\033[0m"
 
 # Ensure to set your API key as an environment variable
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -33,7 +31,9 @@ def save_messages(messages, file_path):
 
 # Run one completion call, stream the result to stdout and return it
 def chat_with_gpt(messages, model):
-    global prompt3
+    global color1, color2
+
+    print(color1 + "GPT: ", end="", flush=True)
 
     response = client.chat.completions.create(
         messages=messages,
@@ -50,12 +50,12 @@ def chat_with_gpt(messages, model):
             print(content, end="", flush=True)
             full_response += content
 
-    print(prompt3) # End with a newline
+    print(color2)
 
     return full_response
 
 def main():
-    global prompt1, prompt2, prompt4
+    global color1, color2
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-m", "--model", default="gpt-3.5-turbo", help="language model to use")
@@ -83,33 +83,32 @@ def main():
             content = message["content"]
 
             if role == "user":
-                 print(prompt1 + content)
+                 print("You: " + content)
             elif role == "assistant":
-                 print(prompt2 + content + prompt3)
+                 print(color1 + "GPT: " + content + color2)
 
         print()
 
-    print("\033[0m### Start chatting with GPT:"+prompt3)
+    print("### Start chatting with GPT:")
 
     try:
         while True:
-            user_input = input(prompt1)
+            user_input = input("You: ")
 
             # Append the user's input to the messages list
             messages.append({"role": "user", "content": user_input})
 
             # Get the assistant's response
-            print(prompt2, end="", flush=True)
             response_content = chat_with_gpt(messages, model_name)
 
             # Append the assistant's response to the messages list
             messages.append({"role": "assistant", "content": response_content})
 
     except KeyboardInterrupt:
-        print("\nGoodbye! (Ctrl+C)"+prompt4)
+        print("\nGoodbye! (Ctrl+C)")
 
     except EOFError:
-        print("\nGoodbye! (Ctrl+D)"+prompt4)
+        print("\nGoodbye! (Ctrl+D)")
 
     finally:
         # Save messages if an output file is provided
