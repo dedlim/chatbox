@@ -18,7 +18,7 @@ def load_messages(file_path):
         with open(file_path, "r") as file:
             return json.load(file)
     except Exception as e:
-        print(f"Error loading messages: {e}")
+        print(f"Warning: can't open '"+file_path+"'")
         return []
 
 # Function to save messages to a JSON file
@@ -60,25 +60,20 @@ def main():
     global color1, color2
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-m", "--model", default="gpt-3.5-turbo", help="language model to use")
-    parser.add_argument("-i", "--input", help="input conversation file (JSON)")
-    parser.add_argument("-o", "--output", help="output conversation file (JSON)")
-    parser.add_argument("--io", help="mutable conversation file (JSON)")
+    parser.add_argument("-m", "--model", default="gpt-3.5-turbo")
+    parser.add_argument('chatlog', nargs='?')
+
+    parser.parse_args()
     args = parser.parse_args()
 
     model_name = args.model
-    if args.io:
-        input_file = args.io
-        output_file = args.io
-    else:
-        input_file = args.input
-        output_file = args.output
+    chatlog = args.chatlog
 
     messages = []
 
-    # If an input file is provided, load and replay messages
-    if input_file:
-        messages = load_messages(input_file)
+    # If chatlog file is provided, load and replay messages
+    if chatlog:
+        messages = load_messages(chatlog)
 
         for message in messages:
             role = message["role"]
@@ -113,8 +108,8 @@ def main():
 
     finally:
         # Save messages if an output file is provided
-        if output_file:
-            save_messages(messages, output_file)
+        if chatlog:
+            save_messages(messages, chatlog)
 
 if __name__ == "__main__":
     main()
