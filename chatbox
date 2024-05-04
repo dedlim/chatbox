@@ -56,6 +56,23 @@ def chat_with_gpt(messages, model):
 
     return full_response
 
+# Do Multiple-line input
+def multi_line_input(prompt):
+    first = True
+
+    lines = []
+    try:
+        while True:
+            if first:
+                line = input(prompt)
+                first = False
+            else:
+                line = input()
+            lines.append(line)
+
+    except EOFError:
+        return '\n'.join(lines)
+
 def main():
     global color1, color2
 
@@ -84,11 +101,11 @@ def main():
             elif role == "assistant":
                  print(color1 + "GPT: " + content + color2 + "\n")
 
-    print("### Start chatting with GPT:")
+    print("### Start chatting with GPT (end prompt with Ctrl+D):")
 
     try:
         while True:
-            user_input = input("You: ")
+            user_input = multi_line_input("You: ")
             print()
 
             # Append the user's input to the messages list
