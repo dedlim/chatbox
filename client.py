@@ -6,6 +6,9 @@ from openai import OpenAI
 import argparse
 import readline
 
+prompt1 = "\033[01;33mYou: \033[01;34m"
+prompt2 = "\033[01;33mGPT: \033[01;32m"
+
 # Ensure to set your API key as an environment variable
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
@@ -48,6 +51,8 @@ def chat_with_gpt(messages, model):
     return full_response
 
 def main():
+    global prompt1, prompt2
+
     parser = argparse.ArgumentParser()
     parser.add_argument("-m", "--model", default="gpt-3.5-turbo", help="language model to use")
     parser.add_argument("-i", "--input", help="input conversation file (JSON)")
@@ -74,23 +79,23 @@ def main():
             content = message["content"]
 
             if role == "user":
-                 print("You: " + content)
+                 print(prompt1 + content)
             elif role == "assistant":
-                 print("GPT: " + content)
+                 print(prompt2 + content)
 
         print()
 
-    print("### Start chatting with GPT:")
+    print("\033[0m### Start chatting with GPT:")
 
     try:
         while True:
-            user_input = input("You: ")
+            user_input = input(prompt1)
 
             # Append the user's input to the messages list
             messages.append({"role": "user", "content": user_input})
 
             # Get the assistant's response
-            print("GPT: ", end="", flush=True)
+            print(prompt2, end="", flush=True)
             response_content = chat_with_gpt(messages, model_name)
 
             # Append the assistant's response to the messages list
