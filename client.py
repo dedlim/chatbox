@@ -6,7 +6,7 @@ from openai import OpenAI
 import argparse
 import readline
 
-color1 = "\033[90m"
+color1 = "\033[93m"
 color2 = "\033[0m"
 
 # Ensure to set your API key as an environment variable
@@ -38,6 +38,7 @@ def chat_with_gpt(messages, model):
     response = client.chat.completions.create(
         messages=messages,
         model=model,
+        temperature=0.0,
         stream=True
     )
 
@@ -51,6 +52,7 @@ def chat_with_gpt(messages, model):
             full_response += content
 
     print(color2)
+    print()
 
     return full_response
 
@@ -83,17 +85,16 @@ def main():
             content = message["content"]
 
             if role == "user":
-                 print("You: " + content)
+                 print("You: " + content + "\n")
             elif role == "assistant":
-                 print(color1 + "GPT: " + content + color2)
-
-        print()
+                 print(color1 + "GPT: " + content + color2 + "\n")
 
     print("### Start chatting with GPT:")
 
     try:
         while True:
             user_input = input("You: ")
+            print()
 
             # Append the user's input to the messages list
             messages.append({"role": "user", "content": user_input})
