@@ -5,10 +5,12 @@ import json
 from openai import OpenAI
 import argparse
 import readline
+import tempfile
 
 color1 = "\033[93m"
 color2 = "\033[0m"
 color3 = "\033[94m"
+color4 = "\033[91m"
 
 # Ensure to set your API key as an environment variable
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -24,11 +26,21 @@ def load_messages(file_path):
 
 # Function to save messages to a JSON file
 def save_messages(messages, file_path):
+    global color2, color4
+
+    error = False
     try:
         with open(file_path, "w") as file:
             json.dump(messages, file, indent=2)
     except Exception as e:
-        print(f"Error saving messages: {e}")
+        error = True
+        print(color4+f"Error saving messages: {e}"+color2)
+
+    if error:
+        # Create a temporary file as emergency storage
+        with tempfile.NamedTemporaryFile(mode='w', delete=False) as file:
+            print(color4+"Temporary file created: "+file.name+color2)
+            json.dump(messages, file, indent=2)
 
 # Run one completion call, stream the result to stdout and return it
 def chat_with_gpt(messages, model):
