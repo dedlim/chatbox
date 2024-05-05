@@ -109,6 +109,8 @@ def main():
                  print("You: " + content + "\n")
             elif role == "assistant":
                  print(color1 + "GPT: " + content + color2 + "\n")
+            elif role == "system":
+                 print(color3 + "System: " + content + color2 + "\n")
 
     print(color3+"### Start chatting with GPT:"+color2)
 
