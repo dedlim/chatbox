@@ -106,7 +106,6 @@ def main():
     parser.add_argument("-r", "--read-only", action="store_true")
     parser.add_argument('chatlog', nargs='?')
 
-    parser.parse_args()
     args = parser.parse_args()
 
     model_name = args.model
