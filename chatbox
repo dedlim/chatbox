@@ -17,7 +17,6 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # Function to load messages from a JSON file
 def load_messages(file_path):
-    global color2, color4
     try:
         with open(file_path, "r") as file:
             return json.load(file)
@@ -32,9 +31,8 @@ def load_messages(file_path):
 
 # Function to save messages to a JSON file
 def save_messages(messages, file_path):
-    global color2, color4
-
     error = False
+
     try:
         with open(file_path, "w") as file:
             json.dump(messages, file, indent=2)
@@ -50,8 +48,6 @@ def save_messages(messages, file_path):
 
 # Run one completion call, stream the result to stdout and return it
 def chat_with_gpt(messages, model):
-    global color1, color2
-
     print(color1 + "GPT: ", end="", flush=True)
 
     response = client.chat.completions.create(
@@ -76,8 +72,6 @@ def chat_with_gpt(messages, model):
 
 # Do (potentially) multiple-line input
 def multi_line_input(prompt):
-    global color3, color2
-
     multi_mode = False
 
     try:
@@ -99,8 +93,6 @@ def multi_line_input(prompt):
         return '\n'.join(lines)
 
 def main():
-    global color1, color2, color3, color4
-
     parser = argparse.ArgumentParser()
     parser.add_argument("-m", "--model", default="gpt-3.5-turbo")
     parser.add_argument("-r", "--read-only", action="store_true")
