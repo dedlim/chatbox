@@ -2,7 +2,7 @@
 
 import os
 import json
-from openai import OpenAI
+from mistralai.client import MistralClient
 import argparse
 import readline
 import tempfile
@@ -13,7 +13,7 @@ color3 = "\033[94m"
 color4 = "\033[91m"
 
 # Ensure to set your API key as an environment variable
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+client = MistralClient(api_key=os.getenv("MISTRAL_API_KEY"))
 
 # Function to load messages from a JSON file
 def load_messages(file_path):
@@ -50,10 +50,9 @@ def save_messages(messages, file_path):
 def chat_with_gpt(messages, model):
     print(color1 + "GPT: ", end="", flush=True)
 
-    response = client.chat.completions.create(
+    response = client.chat_stream(
         messages=messages,
-        model=model,
-        stream=True
+        model=model
     )
 
     full_response = ""
@@ -94,7 +93,7 @@ def multi_line_input(prompt):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-m", "--model", default="gpt-3.5-turbo")
+    parser.add_argument("-m", "--model", default="mistral-large-latest")
     parser.add_argument("-r", "--read-only", action="store_true")
     parser.add_argument('chatlog', nargs='?')
 
