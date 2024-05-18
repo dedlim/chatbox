@@ -17,25 +17,15 @@ class ChatClient(ABC):
     def __init__(self, model):
         self.client = None
         self.key = os.getenv(self.envname)
-        if model:
-            self.model = model
-        else:
-            self.model = self.default_model
+        self.model = model or self.default_model
 
     @abstractmethod
     def chat(self, messages):
         pass
 
-    def list_models(self, method):
-        try:
-            cards = method().data
-        except:
-            return None
-
-        list = []
-        for card in cards:
-            list.append(card.id)
-        return list
+    @abstractmethod
+    def list_models(self):
+        pass
 
 # OpenAI client implementation
 class OpenAIClient(ChatClient):
@@ -57,11 +47,11 @@ class OpenAIClient(ChatClient):
         return response
 
     def list_models(self):
-        if not self.client:
+        try:
+            cards = self.client.models.list().data
+            return [c.id for c in cards]
+        except:
             return None
-
-        method = self.client.models.list
-        return super().list_models(method)
 
 # Mistral client implementation
 class MistralClient(ChatClient):
@@ -81,11 +71,11 @@ class MistralClient(ChatClient):
         return response
 
     def list_models(self):
-        if not self.client:
+        try:
+            cards = self.client.list_models().data
+            return [c.id for c in cards]
+        except:
             return None
-
-        method = self.client.list_models
-        return super().list_models(method)
 
 endpoints = [OpenAIClient, MistralClient]
 
