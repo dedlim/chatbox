@@ -51,7 +51,7 @@ class OpenAIClient(ChatClient):
             cards = self.client.models.list().data
             return [c.id for c in cards]
         except:
-            return None
+            return []
 
 # Mistral client implementation
 class MistralClient(ChatClient):
@@ -75,7 +75,7 @@ class MistralClient(ChatClient):
             cards = self.client.list_models().data
             return [c.id for c in cards]
         except:
-            return None
+            return []
 
 endpoints = [OpenAIClient, MistralClient]
 
@@ -173,7 +173,7 @@ def main():
     if model:
         for endpoint in endpoints:
             list = endpoint().list_models()
-            if list and model in list:
+            if model in list:
                 client = endpoint(model)
     else:
         for endpoint in endpoints:
