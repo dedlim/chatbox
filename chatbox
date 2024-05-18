@@ -14,8 +14,9 @@ color4 = "\033[91m"
 
 # Abstract base class for API clients
 class ChatClient(ABC):
-    def __init__(self, api_key, model):
-        self.api_key = api_key
+    def __init__(self, model):
+        self.client = None
+        self.key = os.getenv(self.envname)
         if model:
             self.model = model
         else:
@@ -25,14 +26,27 @@ class ChatClient(ABC):
     def chat(self, messages):
         pass
 
+    def list_models(self, method):
+        try:
+            cards = method().data
+        except:
+            return None
+
+        list = []
+        for card in cards:
+            list.append(card.id)
+        return list
+
 # OpenAI client implementation
 class OpenAIClient(ChatClient):
+    envname = "OPENAI_API_KEY"
     default_model = "gpt-3.5-turbo"
 
-    def __init__(self, api_key, model):
-        super().__init__(api_key, model)
+    def __init__(self, model=None):
+        super().__init__(model)
         import openai
-        self.client = openai.OpenAI(api_key=api_key)
+        if self.key:
+            self.client = openai.OpenAI(api_key=self.key)
 
     def chat(self, messages):
         response = self.client.chat.completions.create(
@@ -42,14 +56,22 @@ class OpenAIClient(ChatClient):
         )
         return response
 
+    def list_models(self):
+        if not self.client:
+            return None
+
+        method = self.client.models.list
+        return super().list_models(method)
+
 # Mistral client implementation
 class MistralClient(ChatClient):
+    envname = "MISTRAL_API_KEY"
     default_model = "open-mistral-7b"
 
-    def __init__(self, api_key, model):
-        super().__init__(api_key, model)
+    def __init__(self, model=None):
+        super().__init__(model)
         import mistralai.client
-        self.client = mistralai.client.MistralClient(api_key=api_key)
+        self.client = mistralai.client.MistralClient(api_key=self.key)
 
     def chat(self, messages):
         response = self.client.chat_stream(
@@ -57,6 +79,15 @@ class MistralClient(ChatClient):
             model=self.model
         )
         return response
+
+    def list_models(self):
+        if not self.client:
+            return None
+
+        method = self.client.list_models
+        return super().list_models(method)
+
+endpoints = [OpenAIClient, MistralClient]
 
 # Function to load messages from a JSON file
 def load_messages(file_path):
@@ -130,14 +161,39 @@ def multi_line_input(prompt):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-m", "--model", default=None)
+    parser.add_argument("-l", "--list", action="store_true")
     parser.add_argument("-r", "--read-only", action="store_true")
     parser.add_argument('chatlog', nargs='?')
 
     args = parser.parse_args()
 
-    model_name = args.model
+    model = args.model
     read_only = args.read_only
     chatlog = args.chatlog
+
+    if args.list:
+        for endpoint in endpoints:
+            list = endpoint().list_models()
+            for m in list:
+                print(m)
+        return
+
+    client = None
+
+    if model:
+        for endpoint in endpoints:
+            list = endpoint().list_models()
+            if list and model in list:
+                client = endpoint(model)
+    else:
+        for endpoint in endpoints:
+            list = endpoint().list_models()
+            if list:
+                client = endpoint()
+
+    if not client:
+        print(f"{color4}Error: Could not find model {model}.{color2}")
+        os._exit(1)
 
     messages = []
 
@@ -158,17 +214,7 @@ def main():
     else:
         print(color4+"Warning: no chatlog"+color2)
 
-    # Select the appropriate client based on environment variables
-    api_key = os.getenv("OPENAI_API_KEY") or os.getenv("MISTRAL_API_KEY")
-    if os.getenv("OPENAI_API_KEY"):
-        client = OpenAIClient(api_key, model_name)
-    elif os.getenv("MISTRAL_API_KEY"):
-        client = MistralClient(api_key, model_name)
-    else:
-        print(color4+"Error: No API key found in environment variables."+color2)
-        os._exit(1)
-
-    print(color3+"### Start chatting with AI:"+color2)
+    print(f"{color3}### Start chatting with {client.model}:{color2}")
 
     try:
         while True:
