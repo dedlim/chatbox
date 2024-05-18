@@ -87,8 +87,8 @@ def save_messages(messages, file_path):
             json.dump(messages, file, indent=2)
 
 # Run one completion call, stream the result to stdout and return it
-def chat_with_gpt(client, messages):
-    print(color1 + "GPT: ", end="", flush=True)
+def stream_response(client, messages):
+    print(color1 + "AI: ", end="", flush=True)
 
     response = client.chat(messages)
 
@@ -152,7 +152,7 @@ def main():
             if role == "user":
                 print("You: " + content + "\n")
             elif role == "assistant":
-                print(color1 + "GPT: " + content + color2 + "\n")
+                print(color1 + "AI: " + content + color2 + "\n")
             elif role == "system":
                 print(color3 + "System: " + content + color2 + "\n")
     else:
@@ -168,7 +168,7 @@ def main():
         print(color4+"Error: No API key found in environment variables."+color2)
         os._exit(1)
 
-    print(color3+"### Start chatting with GPT:"+color2)
+    print(color3+"### Start chatting with AI:"+color2)
 
     try:
         while True:
@@ -179,7 +179,7 @@ def main():
             messages.append({"role": "user", "content": user_input})
 
             # Get the assistant's response
-            response_content = chat_with_gpt(client, messages)
+            response_content = stream_response(client, messages)
 
             # Append the assistant's response to the messages list
             messages.append({"role": "assistant", "content": response_content})
