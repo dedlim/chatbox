@@ -14,39 +14,47 @@ color4 = "\033[91m"
 
 # Abstract base class for API clients
 class ChatClient(ABC):
-    def __init__(self, api_key):
+    def __init__(self, api_key, model):
         self.api_key = api_key
+        if model:
+            self.model = model
+        else:
+            self.model = self.default_model
 
     @abstractmethod
-    def chat(self, messages, model):
+    def chat(self, messages):
         pass
 
 # OpenAI client implementation
 class OpenAIClient(ChatClient):
-    def __init__(self, api_key):
-        super().__init__(api_key)
+    default_model = "gpt-3.5-turbo"
+
+    def __init__(self, api_key, model):
+        super().__init__(api_key, model)
         import openai
         self.client = openai.OpenAI(api_key=api_key)
 
-    def chat(self, messages, model):
+    def chat(self, messages):
         response = self.client.chat.completions.create(
             messages=messages,
-            model=model,
+            model=self.model,
             stream=True
         )
         return response
 
 # Mistral client implementation
 class MistralClient(ChatClient):
-    def __init__(self, api_key):
-        super().__init__(api_key)
-        from mistralai.client import MistralClient as MistralAPI
-        self.client = MistralAPI(api_key=api_key)
+    default_model = "open-mistral-7b"
 
-    def chat(self, messages, model):
+    def __init__(self, api_key, model):
+        super().__init__(api_key, model)
+        import mistralai.client
+        self.client = mistralai.client.MistralClient(api_key=api_key)
+
+    def chat(self, messages):
         response = self.client.chat_stream(
             messages=messages,
-            model=model
+            model=self.model
         )
         return response
 
@@ -79,10 +87,10 @@ def save_messages(messages, file_path):
             json.dump(messages, file, indent=2)
 
 # Run one completion call, stream the result to stdout and return it
-def chat_with_gpt(client, messages, model):
+def chat_with_gpt(client, messages):
     print(color1 + "GPT: ", end="", flush=True)
 
-    response = client.chat(messages, model)
+    response = client.chat(messages)
 
     full_response = ""
 
@@ -121,7 +129,7 @@ def multi_line_input(prompt):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-m", "--model", default="gpt-3.5-turbo")
+    parser.add_argument("-m", "--model", default=None)
     parser.add_argument("-r", "--read-only", action="store_true")
     parser.add_argument('chatlog', nargs='?')
 
@@ -153,9 +161,9 @@ def main():
     # Select the appropriate client based on environment variables
     api_key = os.getenv("OPENAI_API_KEY") or os.getenv("MISTRAL_API_KEY")
     if os.getenv("OPENAI_API_KEY"):
-        client = OpenAIClient(api_key)
+        client = OpenAIClient(api_key, model_name)
     elif os.getenv("MISTRAL_API_KEY"):
-        client = MistralClient(api_key)
+        client = MistralClient(api_key, model_name)
     else:
         print(color4+"Error: No API key found in environment variables."+color2)
         os._exit(1)
@@ -171,7 +179,7 @@ def main():
             messages.append({"role": "user", "content": user_input})
 
             # Get the assistant's response
-            response_content = chat_with_gpt(client, messages, model_name)
+            response_content = chat_with_gpt(client, messages)
 
             # Append the assistant's response to the messages list
             messages.append({"role": "assistant", "content": response_content})
