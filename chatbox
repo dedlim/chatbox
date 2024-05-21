@@ -44,7 +44,8 @@ class OpenAIClient(ChatClient):
             model=self.model,
             stream=True
         )
-        return response
+        for chunk in response:
+            yield chunk.choices[0].delta.content
 
     def list_models(self):
         try:
@@ -68,7 +69,8 @@ class MistralClient(ChatClient):
             messages=messages,
             model=self.model
         )
-        return response
+        for chunk in response:
+            yield chunk.choices[0].delta.content
 
     def list_models(self):
         try:
@@ -77,7 +79,34 @@ class MistralClient(ChatClient):
         except:
             return []
 
-endpoints = [OpenAIClient, MistralClient]
+# Anthropic client implementation
+class AnthropicClient(ChatClient):
+    envname = "ANTHROPIC_API_KEY"
+    default_model = "claude-3-opus-20240229"
+
+    def __init__(self, model=None):
+        super().__init__(model)
+        import anthropic
+        self.client = anthropic.Anthropic(api_key=self.key)
+
+    def chat(self, messages):
+        with self.client.messages.stream(
+            max_tokens=1024,
+            messages=messages,
+            model=self.model
+        ) as stream:
+            for text in stream.text_stream:
+                yield text
+
+    def list_models(self):
+        return [
+            "claude-3-opus-20240229",
+            "claude-3-sonnet-20240229",
+            "claude-3-haiku-20240307",
+        ]
+
+
+endpoints = [OpenAIClient, MistralClient, AnthropicClient]
 
 # Function to load messages from a JSON file
 def load_messages(file_path):
@@ -115,12 +144,11 @@ def stream_response(client, messages):
 
     full_response = ""
 
+    # Get the content from each streamed event
     for chunk in response:
-        # Get the content from each streamed event
-        content = chunk.choices[0].delta.content
-        if type(content) is str:
-            print(content, end="", flush=True)
-            full_response += content
+        if type(chunk) is str:
+            print(chunk, end="", flush=True)
+            full_response += chunk
 
     print(color2)
     print()
