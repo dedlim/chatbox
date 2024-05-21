@@ -90,13 +90,24 @@ class AnthropicClient(ChatClient):
         self.client = anthropic.Anthropic(api_key=self.key)
 
     def chat(self, messages):
-        with self.client.messages.stream(
-            max_tokens=1024,
-            messages=messages,
-            model=self.model
-        ) as stream:
-            for text in stream.text_stream:
-                yield text
+        if messages and messages[0]["role"] == "system":
+            sys, *msg = messages
+            with self.client.messages.stream(
+                max_tokens=1024,
+                system = sys["content"],
+                messages=msg,
+                model=self.model
+            ) as stream:
+                for text in stream.text_stream:
+                    yield text
+        else:
+            with self.client.messages.stream(
+                max_tokens=1024,
+                messages=messages,
+                model=self.model
+            ) as stream:
+                for text in stream.text_stream:
+                    yield text
 
     def list_models(self):
         return [
