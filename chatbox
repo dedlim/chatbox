@@ -82,7 +82,7 @@ class MistralClient(ChatClient):
 # Anthropic client implementation
 class AnthropicClient(ChatClient):
     envname = "ANTHROPIC_API_KEY"
-    default_model = "claude-3-opus-20240229"
+    default_model = "claude-3-haiku-20240307"
 
     def __init__(self, model=None):
         super().__init__(model)
