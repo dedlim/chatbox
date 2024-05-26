@@ -93,7 +93,7 @@ class AnthropicClient(ChatClient):
         if messages and messages[0]["role"] == "system":
             sys, *msg = messages
             with self.client.messages.stream(
-                max_tokens=1024,
+                max_tokens=4096,
                 system = sys["content"],
                 messages=msg,
                 model=self.model
@@ -256,7 +256,8 @@ def main():
             print()
 
             # Append the user's input to the messages list
-            messages.append({"role": "user", "content": user_input})
+            if user_input:
+                messages.append({"role": "user", "content": user_input})
 
             # Get the assistant's response
             response_content = stream_response(client, messages)
