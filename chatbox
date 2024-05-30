@@ -149,7 +149,7 @@ def save_messages(messages, file_path):
 
 # Run one completion call, stream the result to stdout and return it
 def stream_response(client, messages):
-    print(color1 + "Xen: ", end="", flush=True)
+    print(color1 + "Xem: ", end="", flush=True)
 
     response = client.chat(messages)
 
@@ -242,7 +242,7 @@ def main():
             if role == "user":
                 print("You: " + content + "\n")
             elif role == "assistant":
-                print(color1 + "Xen: " + content + color2 + "\n")
+                print(color1 + "Xem: " + content + color2 + "\n")
             elif role == "system":
                 print(color3 + "System: " + content + color2 + "\n")
     else:
