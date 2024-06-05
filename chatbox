@@ -156,10 +156,13 @@ def stream_response(client, messages):
     full_response = ""
 
     # Get the content from each streamed event
-    for chunk in response:
-        if type(chunk) is str:
-            print(chunk, end="", flush=True)
-            full_response += chunk
+    try:
+        for chunk in response:
+            if type(chunk) is str:
+                print(chunk, end="", flush=True)
+                full_response += chunk
+    except Exception as e:
+        print(color4+f"Error getting completion: {e}"+color2)
 
     print(color2)
     print()
