@@ -2,7 +2,7 @@
 
 Chatbox is a powerful yet minimalist Python AI chat client designed for seamless interaction with multiple leading language model APIs. This terminal-based tool provides an immersive and efficient chat experience without the distractions of a graphical interface.
 
-![Screen capture](https://raw.githubusercontent.com/dedlim/chatbox/7ff3dd6/Documentation/Pictures/capture_01.png)
+![Screen capture](https://raw.githubusercontent.com/dedlim/chatbox/2c3b852/Documentation/Pictures/capture_02.png)
 
 ## Features
 - **Terminal-Based Interface**: Emphasizing simplicity and productivity, Chatbox offers a distraction-free environment for engaging AI-powered conversations.
