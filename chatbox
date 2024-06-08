@@ -12,6 +12,9 @@ color2 = "\033[0m"
 color3 = "\033[94m"
 color4 = "\033[91m"
 
+def eprint(text):
+    os.write(2, (text+"\n").encode())
+
 # Abstract base class for API clients
 class ChatClient(ABC):
     def __init__(self, model):
@@ -125,10 +128,10 @@ def load_messages(file_path):
         with open(file_path, "r") as file:
             return json.load(file)
     except FileNotFoundError:
-        print(color4+"Warning: creating '"+file_path+"'"+color2)
+        eprint(color4+"Warning: creating '"+file_path+"'"+color2)
         return []
     except json.decoder.JSONDecodeError:
-        print(color4+"Error: cannot parse '"+file_path+"'"+color2)
+        eprint(color4+"Error: cannot parse '"+file_path+"'"+color2)
         os._exit(1)
 
 # Function to save messages to a JSON file
@@ -139,12 +142,12 @@ def save_messages(messages, file_path):
             json.dump(messages, file, indent=2)
     except Exception as e:
         error = True
-        print(color4+f"Error saving messages: {e}"+color2)
+        eprint(color4+f"Error saving messages: {e}"+color2)
 
     if error:
         # Create a temporary file as emergency storage
         with tempfile.NamedTemporaryFile(mode='w', delete=False) as file:
-            print(color4+"Temporary file created: "+file.name+color2)
+            eprint(color4+"Temporary file created: "+file.name+color2)
             json.dump(messages, file, indent=2)
 
 # Run one completion call, stream the result to stdout and return it
@@ -162,7 +165,7 @@ def stream_response(client, messages):
                 print(chunk, end="", flush=True)
                 full_response += chunk
     except Exception as e:
-        print(color4+f"Error getting completion: {e}"+color2)
+        eprint(color4+f"Error getting completion: {e}"+color2)
 
     print(color2)
     print()
@@ -181,7 +184,7 @@ def multi_line_input(prompt):
     if not multi_mode:
         return line
 
-    print(color3+"### Multi-line mode activated (send with Ctrl+D)"+color2)
+    eprint(color3+"### Multi-line mode activated (send with Ctrl+D)"+color2)
     lines = []
     try:
         while True:
@@ -229,7 +232,7 @@ def main():
                 client = endpoint()
 
     if not client:
-        print(f"{color4}Error: Could not find model {model}.{color2}")
+        eprint(f"{color4}Error: Could not find model {model}.{color2}")
         os._exit(1)
 
     messages = []
@@ -249,9 +252,9 @@ def main():
             elif role == "system":
                 print(color3 + "System: " + content + color2 + "\n")
     else:
-        print(color4+"Warning: no chatlog"+color2)
+        eprint(color4+"Warning: no chatlog"+color2)
 
-    print(f"{color3}### Start chatting with {client.model}:{color2}")
+    eprint(f"{color3}### Start chatting with {client.model}:{color2}")
 
     try:
         while True:
@@ -269,9 +272,9 @@ def main():
             messages.append({"role": "assistant", "content": response_content})
 
     except KeyboardInterrupt:
-        print(color3+"\n### Goodbye! (Ctrl+C)"+color2)
+        eprint(color3+"\n### Goodbye! (Ctrl+C)"+color2)
     except EOFError:
-        print(color3+"\n### Goodbye! (Ctrl+D)"+color2)
+        eprint(color3+"\n### Goodbye! (Ctrl+D)"+color2)
     finally:
         # Save messages if an output file is provided
         if chatlog and not read_only:
