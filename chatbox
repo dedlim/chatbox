@@ -263,13 +263,19 @@ def main():
 
             # Append the user's input to the messages list
             if user_input:
-                messages.append({"role": "user", "content": user_input})
+                if messages[-1]["role"] == "user":
+                    messages[-1]["content"] += "\n"+user_input
+                else:
+                    messages.append({"role": "user", "content": user_input})
 
             # Get the assistant's response
             response_content = stream_response(client, messages)
 
             # Append the assistant's response to the messages list
-            messages.append({"role": "assistant", "content": response_content})
+            if messages[-1]["role"] == "assistant":
+                messages[-1]["content"] += response_content
+            else:
+                messages.append({"role": "assistant", "content": response_content})
 
     except KeyboardInterrupt:
         eprint(color3+"\n### Goodbye! (Ctrl+C)"+color2)
