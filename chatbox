@@ -196,7 +196,7 @@ def multi_line_input(prompt):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-m", "--model", default=None)
-    parser.add_argument("-l", "--list", action="store_true")
+    parser.add_argument("-l", "--list-models", action="store_true")
     parser.add_argument("-r", "--read-only", action="store_true")
     parser.add_argument("-c", "--no-color", action="store_true")
     parser.add_argument('chatlog', nargs='?')
@@ -211,7 +211,7 @@ def main():
     read_only = args.read_only
     chatlog = args.chatlog
 
-    if args.list:
+    if args.list_models:
         for endpoint in endpoints:
             list = endpoint().list_models()
             for m in list:
