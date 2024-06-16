@@ -263,7 +263,7 @@ def main():
 
             # Append the user's input to the messages list
             if user_input:
-                if messages[-1]["role"] == "user":
+                if len(messages) > 0 and messages[-1]["role"] == "user":
                     messages[-1]["content"] += "\n"+user_input
                 else:
                     messages.append({"role": "user", "content": user_input})
