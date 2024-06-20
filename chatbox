@@ -199,6 +199,7 @@ def main():
     parser.add_argument("-l", "--list-models", action="store_true")
     parser.add_argument("-r", "--read-only", action="store_true")
     parser.add_argument("-c", "--no-color", action="store_true")
+    parser.add_argument("-b", "--batch", action="store_true")
     parser.add_argument('chatlog', nargs='?')
 
     args = parser.parse_args()
@@ -245,12 +246,13 @@ def main():
             role = message["role"]
             content = message["content"]
 
-            if role == "user":
-                print("You: " + content + "\n")
-            elif role == "assistant":
-                print(color1 + "Xem: " + content + color2 + "\n")
-            elif role == "system":
-                print(color3 + "System: " + content + color2 + "\n")
+            if not args.batch:
+                if role == "user":
+                    print("You: " + content + "\n")
+                elif role == "assistant":
+                    print(color1 + "Xem: " + content + color2 + "\n")
+                elif role == "system":
+                    print(color3 + "System: " + content + color2 + "\n")
     else:
         eprint(color4+"Warning: no chatlog"+color2)
 
@@ -258,8 +260,10 @@ def main():
 
     try:
         while True:
-            user_input = multi_line_input("You: ")
-            print()
+            user_input = ""
+            if not args.batch:
+                user_input = multi_line_input("You: ")
+                print()
 
             # Append the user's input to the messages list
             if user_input:
@@ -270,6 +274,9 @@ def main():
 
             # Get the assistant's response
             response_content = stream_response(client, messages)
+
+            if args.batch:
+                os._exit(0)
 
             # Append the assistant's response to the messages list
             if messages[-1]["role"] == "assistant":
