@@ -68,12 +68,29 @@ class MistralClient(ChatClient):
         self.client = mistralai.client.MistralClient(api_key=self.key)
 
     def chat(self, messages):
+        prefix = False
+
+        if messages and messages[-1]["role"] == "assistant":
+            messages[-1]["prefix"] = True
+            prefix = True
+            length = len(messages[-1]["content"])
+            if length == 0:
+                prefix = False
+                del messages[-1]
+
         response = self.client.chat_stream(
             messages=messages,
             model=self.model
         )
+
         for chunk in response:
+            if prefix and length > 0:
+                length -= len(chunk.choices[0].delta.content)
+                continue
             yield chunk.choices[0].delta.content
+
+        if prefix:
+            del messages[-1]["prefix"]
 
     def list_models(self):
         try:
