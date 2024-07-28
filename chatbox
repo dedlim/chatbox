@@ -187,6 +187,8 @@ def stream_response(client, messages):
                 full_response += chunk
     except Exception as e:
         eprint(color4+f"Error getting completion: {e}"+color2)
+    except KeyboardInterrupt:
+        eprint(color3+"\n### Response interrupted (Ctrl+C)"+color2)
 
     print(color2)
     print()
