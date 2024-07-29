@@ -51,11 +51,8 @@ class OpenAIClient(ChatClient):
             yield chunk.choices[0].delta.content
 
     def list_models(self):
-        try:
-            cards = self.client.models.list().data
-            return [c.id for c in cards]
-        except:
-            return []
+        cards = self.client.models.list().data
+        return [c.id for c in cards]
 
 # Mistral client implementation
 class MistralClient(ChatClient):
@@ -65,7 +62,8 @@ class MistralClient(ChatClient):
     def __init__(self, model=None):
         super().__init__(model)
         import mistralai.client
-        self.client = mistralai.client.MistralClient(api_key=self.key)
+        if self.key:
+            self.client = mistralai.client.MistralClient(api_key=self.key)
 
     def chat(self, messages):
         prefix = False
@@ -93,11 +91,8 @@ class MistralClient(ChatClient):
             del messages[-1]["prefix"]
 
     def list_models(self):
-        try:
-            cards = self.client.list_models().data
-            return [c.id for c in cards]
-        except:
-            return []
+        cards = self.client.list_models().data
+        return [c.id for c in cards]
 
 # Anthropic client implementation
 class AnthropicClient(ChatClient):
@@ -107,7 +102,8 @@ class AnthropicClient(ChatClient):
     def __init__(self, model=None):
         super().__init__(model)
         import anthropic
-        self.client = anthropic.Anthropic(api_key=self.key)
+        if self.key:
+            self.client = anthropic.Anthropic(api_key=self.key)
 
     def chat(self, messages):
         if messages and messages[0]["role"] == "system":
@@ -234,6 +230,13 @@ def main():
     model = args.model
     read_only = args.read_only
     chatlog = args.chatlog
+
+    # Delete unreachable endpoints
+    endpoints[:] = filter(lambda endpoint: endpoint().client, endpoints)
+
+    if not endpoints:
+        eprint(color4+"Error: no API key found"+color2)
+        os._exit(1)
 
     if args.list_models:
         for endpoint in endpoints:
