@@ -33,7 +33,7 @@ class ChatClient(ABC):
 # OpenAI client implementation
 class OpenAIClient(ChatClient):
     envname = "OPENAI_API_KEY"
-    default_model = "gpt-3.5-turbo"
+    default_model = "gpt-4o-mini"
 
     def __init__(self, model=None):
         super().__init__(model)
@@ -57,7 +57,7 @@ class OpenAIClient(ChatClient):
 # Mistral client implementation
 class MistralClient(ChatClient):
     envname = "MISTRAL_API_KEY"
-    default_model = "open-mistral-7b"
+    default_model = "open-mistral-nemo"
 
     def __init__(self, model=None):
         super().__init__(model)
