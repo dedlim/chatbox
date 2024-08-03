@@ -18,7 +18,7 @@ Chatbox is a powerful yet minimalist Python AI chat client designed for seamless
 - **Customizable Experience**: Tailor your chat sessions with options for model selection, read-only mode, color output, and more.
 
 ## Getting Started
-1. **Requirements**: Ensure you have Python 3.x installed on your system.
+1. **Requirements**: Ensure you have Python 3.x installed on your system, as well as the three backend libraries (`anthropic`, `mistralai` and `openai`).
 
 2. **Installation**: Clone the repository and configure your API keys for the desired language model providers as environment variables.
 
