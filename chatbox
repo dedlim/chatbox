@@ -118,7 +118,7 @@ class AnthropicClient(ChatClient):
                     yield text
         else:
             with self.client.messages.stream(
-                max_tokens=1024,
+                max_tokens=4096,
                 messages=messages,
                 model=self.model
             ) as stream:
