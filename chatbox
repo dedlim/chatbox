@@ -135,8 +135,43 @@ class AnthropicClient(ChatClient):
             "claude-2.0",
         ]
 
+# DeepSeek client implementation
+class DeepSeekClient(ChatClient):
+    envname = "DEEPSEEK_API_KEY"
+    default_model = "deepseek-chat"
 
-endpoints = [OpenAIClient, MistralClient, AnthropicClient]
+    def __init__(self, model=None):
+        super().__init__(model)
+        import openai
+        if self.key:
+            self.client = openai.OpenAI(base_url="https://api.deepseek.com/beta", api_key=self.key)
+
+    def chat(self, messages):
+        prefix = False
+
+        if messages and messages[-1]["role"] == "assistant":
+            messages[-1]["prefix"] = True
+            prefix = True
+
+        response = self.client.chat.completions.create(
+            messages=messages,
+            model=self.model,
+            stream=True
+        )
+        for chunk in response:
+            yield chunk.choices[0].delta.content
+
+        if prefix:
+            del messages[-1]["prefix"]
+
+    def list_models(self):
+        return [
+            "deepseek-chat",
+            "deepseek-reasoner",
+        ]
+
+
+endpoints = [OpenAIClient, MistralClient, AnthropicClient, DeepSeekClient]
 
 # Function to load messages from a JSON file
 def load_messages(file_path):
